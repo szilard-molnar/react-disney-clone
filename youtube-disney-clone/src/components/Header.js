@@ -1,14 +1,35 @@
 import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { auth, provider } from '../firebase';
+import { selectUserName, selectUserPhoto, setUserLoginDetails } from '../features/user/userSlice';
 
 const Header = (props) => {
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const userName = useSelector(selectUserName);
+    const userPhoto = useSelector(selectUserPhoto);
+
 
     const handleAuth = () => {
-        auth.signInWithPopup(provider).then((result) => {
-            console.log(result);
-        }).catch((error) => {
-            alert(error.message);
-        })
+        auth
+            .signInWithPopup(provider)
+            .then((result) => {
+                setUser(result.user);
+            }).catch((error) => {
+                alert(error.message);
+            })
+    }
+
+    const setUser = (user) => {
+        dispatch(
+            setUserLoginDetails({
+                // user info is coming from the google login popup!
+                name: user.displayName,
+                email: user.email,
+                photo: user.photoURL,
+            })
+        )
     }
 
     return (
@@ -16,35 +37,42 @@ const Header = (props) => {
             <Logo>
                 <img src="/images/logo.svg" alt="disney logo"/>
             </Logo>
-            <NavMenu>
-                <a href="/">
-                    <img src='/images/home-icon.svg' alt='home' />
-                    <span>HOME</span>
-                </a>
-                <a href="/search">
-                    <img src='/images/search-icon.svg' alt='search' />
-                    <span>SEARCH</span>
-                </a>
-                <a href="/watchlist">
-                    <img src='/images/plus-icon.svg' alt='watchlist' />
-                    <span>WATCHLIST</span>
-                </a>
-                <a href="/originals">
-                    <img src='/images/star-icon.svg' alt='originals' />
-                    <span>ORIGINALS</span>
-                </a>
-                <a href="/movies">
-                    <img src='/images/movie-icon.svg' alt='movies' />
-                    <span>MOVIES</span>
-                </a>
-                <a href="/series">
-                    <img src='/images/tv-icon.svg' alt='series' />
-                    <span>SERIES</span>
-                </a>
-            </NavMenu>
-            <Login onClick={handleAuth}>
-                Login
-            </Login>
+
+            {
+                !userName ?
+                <Login onClick={handleAuth}>Login</Login>
+                :
+                <>
+
+                <NavMenu>
+                    <a href="/home">
+                        <img src='/images/home-icon.svg' alt='home' />
+                        <span>HOME</span>
+                    </a>
+                    <a href="/search">
+                        <img src='/images/search-icon.svg' alt='search' />
+                        <span>SEARCH</span>
+                    </a>
+                    <a href="/watchlist">
+                        <img src='/images/plus-icon.svg' alt='watchlist' />
+                        <span>WATCHLIST</span>
+                    </a>
+                    <a href="/originals">
+                        <img src='/images/star-icon.svg' alt='originals' />
+                        <span>ORIGINALS</span>
+                    </a>
+                    <a href="/movies">
+                        <img src='/images/movie-icon.svg' alt='movies' />
+                        <span>MOVIES</span>
+                    </a>
+                    <a href="/series">
+                        <img src='/images/tv-icon.svg' alt='series' />
+                        <span>SERIES</span>
+                    </a>
+                </NavMenu>
+                <UserImg src={userPhoto} alt="user photo"/>
+                </>
+            }
         </Nav>
     )
 }
@@ -161,6 +189,9 @@ const Login = styled.a`
     }
 `;
 
+const UserImg = styled.img`
+    height: 100%;
 
+`;
 
 export default Header;
