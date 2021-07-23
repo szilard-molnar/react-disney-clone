@@ -16,7 +16,7 @@ const Home = (props) => {
     const userName = useSelector(selectUserName);
     let recommends = [];
     let newDisneys = [];
-    let trending = [];
+    let trendings = [];
     let originals = [];
 
     useEffect(() => {
@@ -24,30 +24,32 @@ const Home = (props) => {
             snapshot.docs.map((doc) => {
                 switch(doc.data().type) {
                     case 'recommend':
-                        recommends.push({id: doc.id, ...doc.data()})
+                        recommends = [...recommends, {id: doc.id, ...doc.data() }]
                         break;
 
                     case 'new':
-                        newDisneys.push({id: doc.id, ...doc.data()})
+                        newDisneys = [...newDisneys, {id: doc.id, ...doc.data() }]
                         break;
 
                     case 'trending':
-                        trending.push({id: doc.id, ...doc.data()})
+                        trendings = [...trendings, {id: doc.id, ...doc.data() }]
                         break;
 
-                    case 'originals':
-                        originals.push({id: doc.id, ...doc.data()})
+                    case 'original':
+                        originals = [...originals, {id: doc.id, ...doc.data() }]
                         break;
                 }
             });
-        });
 
         dispatch(setMovies({
             recommend: recommends,
             newDisney: newDisneys,
             original: originals,
-            trending: trending,
+            trending: trendings,
         }))
+
+        });
+
     }, [userName]);
 
     return (
