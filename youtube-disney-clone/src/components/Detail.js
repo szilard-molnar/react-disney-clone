@@ -1,19 +1,40 @@
 import styled from 'styled-components';
+import { useEffect, useState } from 'react'; // for writing the url for each movie
+import { useParams } from 'react-router-dom';
+import db from '../firebase';
 
 const Detail = (props) => {
+    const { id } = useParams();
+    const [ detailData, setDetailData ] = useState({});
+
+    useEffect(() => {
+        db.collection('movies')
+            .doc(id)
+            .get()
+            .then((doc) => {
+                if(doc.exists) {
+                setDetailData(doc.data());
+                } else {
+                    console.log('no such document in firebase...');
+                }
+            }).catch((error) => {
+                console.log("Error getting document: ", error);
+            })
+    }, [id])
+
     return (
         <Container>
-            <Background>
+            <Background >
                 <img 
-                    alt=""
-                    src="https://wallpaperaccess.com/full/2446459.jpg"
+                    alt={detailData.title}
+                    src={detailData.backgroundImg}
                 />
             </Background>
 
             <ImageTitle>
                 <img 
-                    alt=""
-                    src=""
+                    alt={detailData.title}
+                    src={detailData.titleImg}
                 />
             </ImageTitle>
 
@@ -42,10 +63,10 @@ const Detail = (props) => {
                 </Controls>
 
                 <SubTitle>
-                    subtitle
+                    {detailData.subTitle}
                 </SubTitle>
                 <Description>
-                    description
+                    {detailData.description}
                 </Description>
             </ContentMeta>
         </Container>
